@@ -27,11 +27,12 @@
     <script src="../../common/js/jquery.js"></script>
     <script>
 // ーーーーーーーーーーーーーーーーーーjQueryーーーーーーーーーーーーーーーーーーーーーーーーー
-$(function() {
+$(function research() {
 　$('#js-search-button').on('click', function(){
   var keyword = $('#js-search-word').val();
   // 検索を押すことでjs-search-wordの中のバリューをkeywordいれる
   // 検索の値がバリューに入る
+  var pages = 1;
   $.ajax({
   url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
   type: 'GET',
@@ -42,7 +43,7 @@ $(function() {
   keyword: keyword,// キーワード
   hits: '20',// 1ページあたりの取得件数
   field: '0',// 検索フィールド
-  //page:'2' page:2だと2ページを表示される
+  page:pages // page:2だと2ページから表示される
   },
   }).done(function(data) {
   // ajaxで情報を.done(function(data)のdataに渡す。
@@ -60,20 +61,27 @@ var list = '<li class="lists__item">' +
     '</a>'+
   '</div>'+
 '</li>';
-$('ul').append(list);//指定した要素のなか（DOMの中の前）に文字列を指定できる。検索したときにulの下にlistが表示される。
+$('ul').before(list);//指定した要素のなか（DOMの中の前）に文字列を指定できる。検索したときにulの下にlistが表示される。
 });
 }
 // ーーーーーーーーーーーーーーーーーーーーページャーーーーーーーーーーーーーーーーーーーーーーーーー
 $('ul').after('<div class="js-pager">'+
   '<ul class="btn-wrapper">'+
-    '<li class="prev btn-item">'+'<a class="btn-anchor" href="#">前へ</a></li>'+
-    '<li class="next btn-item">'+'<a class="btn-anchor" href="#">次へ</a></li>'+
+    '<li class="prev btn-item">'+'<a class="btn-anchor">前へ</a></li>'+
+    '<li class="next btn-item">'+'<a class="btn-anchor">次へ</a></li>'+
     '</ul>'+
     '</div>');
-    $(document).on('click',btn-anchor,function() {
+    　$(document).on('click','ul.prev',function() {
+      prev--;
+      research();
       
-    });
-  console.log(data);
+  　});
+  　$(document).on('click','ul.next',function() {
+    prev++;
+    research();
+
+  });
+  console.log(pages);
 });
 });
 });
