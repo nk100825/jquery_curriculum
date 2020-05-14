@@ -99,23 +99,16 @@
       // $().each() DOM要素を1つずつループ処理をする（ループ内で$(this)を使うと要素がひとつずつ取得できる）
       $(function() {
         $('.select').change(function() {
-          // change（）はselect,option,Textareaなどのときに使う。セレクタに何かせれたときに発動するメソッド
           var n = $(this).val();
-          //.selectのvalueを取得する
+// クリックされたもののバリューをnという変数に入れる
           if(n　===　'all') {
             $('ul.list li').show();
-          // valueがallならtrue
-          // allの場合は全て表示
           } else {
-          // それ以外はfalse（条件分岐）
             $('ul.list li').each(function() {
-              // 繰り返し処理をしてif文で条件
               if($(this).data('category-type')=== n) {
                 $(this).show();
-                // valueとdata-category-typeが一緒ならtrue(表示)
               } else {
                 $(this).hide();
-                // それ以外はfalse(隠す)
               }
             });
           }

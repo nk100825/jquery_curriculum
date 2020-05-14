@@ -17,7 +17,7 @@
         </div>
         <div class="search">
           <div class="search__text">
-            <input type="text" id="js-search-word" class="search__text__input" placeholder="検索する">
+            <input type="text" id="js-search-word" class="search__text__input" placeholder="検索する" value="アンパンマン">
           </div>
           <button id="js-search-button" class="search__btn">検索する</button>
         </div>
@@ -27,68 +27,75 @@
     <script src="../../common/js/jquery.js"></script>
     <script>
 // ーーーーーーーーーーーーーーーーーーjQueryーーーーーーーーーーーーーーーーーーーーーーーーー
-$(function research() {
+var pages = 1;
+$(function() {
 　$('#js-search-button').on('click', function(){
+  $('.js-pager').remove();
+  $('.lists').children().remove();
+  totaldata();
+});
+// ーーーーーーーーーーーーーーーーーーajaxーーーーーーーーーーーーーーーーーーーーーーーーー
+function totaldata(){
   var keyword = $('#js-search-word').val();
   // 検索を押すことでjs-search-wordの中のバリューをkeywordいれる
   // 検索の値がバリューに入る
-  var pages = 1;
   $.ajax({
-  url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-  type: 'GET',
-  datatype: 'json',//書き方のルール
-  data: {
-  applicationId: '1019399324990976605',
-  booksGenreId: '001',//楽天ブックスジャンルID
-  keyword: keyword,// キーワード
-  hits: '20',// 1ページあたりの取得件数
-  field: '0',// 検索フィールド
-  page:pages // page:2だと2ページから表示される
-  },
+    url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+    type: 'GET',
+    datatype: 'json',//書き方のルール
+    data: {
+    applicationId: '1019399324990976605',
+    booksGenreId: '001',//楽天ブックスジャンルID
+    keyword: keyword,// キーワード
+    hits: '20',// 1ページあたりの取得件数
+    field: '0',// 検索フィールド
+    page:pages // page:2だと2ページから表示される
+    },
   }).done(function(data) {
   // ajaxで情報を.done(function(data)のdataに渡す。
-  if(data.Items === 0) {
-    massage ('検索結果が見つかりませんでした。別のキーワードで検索して下さい。')
-  } else {
-    $(data.Items).each(function(indax,value) {
-var list = '<li class="lists__item">' +
-  '<div class="lists__item__inner">' +
-    '<a href='+value.Item.itemUrl+' class="lists__item__link" target="_blank">' +
-      '<img src='+value.Item.largeImageUrl+' class="lists__item__img" alt="">'+
-      '<p class="lists__item__detail">作品名：'+value.Item.title+'</p>'+
-      '<p class="lists__item__detail">作者：'+value.Item.author+'</p>'+
-      '<p class="lists__item__detail">出版社：'+value.Item.publisherName+'</p>'+
-    '</a>'+
-  '</div>'+
-'</li>';
-$('ul').before(list);//指定した要素のなか（DOMの中の前）に文字列を指定できる。検索したときにulの下にlistが表示される。
-});
-}
-// ーーーーーーーーーーーーーーーーーーーーページャーーーーーーーーーーーーーーーーーーーーーーーーー
-$('ul').after('<div class="js-pager">'+
-  '<ul class="btn-wrapper">'+
-    '<li class="prev btn-item">'+'<a class="btn-anchor">前へ</a></li>'+
-    '<li class="next btn-item">'+'<a class="btn-anchor">次へ</a></li>'+
-    '</ul>'+
-    '</div>');
-    　$(document).on('click','ul.prev',function() {
-      prev--;
-      research();
-      
-  　});
-  　$(document).on('click','ul.next',function() {
-    prev++;
-    research();
-
-  });
-  console.log(pages);
-});
-});
+  // ajaxの情報が楽天に送って帰ってきたデータ
+      if(data.Items === 0) {
+      massage ('検索結果が見つかりませんでした。別のキーワードで検索して下さい。')
+      } else {
+      $(data.Items).each(function(index,value) {
+        //index 数
+        // value　内容
+      var list = '<li class="lists__item">' +
+                  '<div class="lists__item__inner">' +
+                    '<a href='+value.Item.itemUrl+' class="lists__item__link" target="_blank">' +
+                      '<img src='+value.Item.largeImageUrl+' class="lists__item__img" alt="">'+
+                      '<p class="lists__item__detail">作品名：'+value.Item.title+'</p>'+
+                      '<p class="lists__item__detail">作者：'+value.Item.author+'</p>'+
+                      '<p class="lists__item__detail">出版社：'+value.Item.publisherName+'</p>'+
+                    '</a>'+
+                  '</div>'+
+                '</li>';
+      $('.lists').append(list);//指定した要素のなか（DOMの中の前）に文字列を指定できる。検索したときにulの下にlistが表示される。
+      });
+    }
+      $('ul').after('<div class="js-pager">'+
+                      '<ul class="btn-wrapper">'+
+                        '<li class="prev btn-item">'+'<a class="btn-anchor">前へ</a></li>'+
+                        '<li class="next btn-item">'+'<a class="btn-anchor">次へ</a></li>'+
+                      '</ul>'+
+                    '</div>');
+                  });
+                };
+        　$(document).on('click','ul.prev',function() {
+            prev--;
+            totaldata();
+          });
+          $(document).on('click','ul.next',function() {
+            next++;
+            totaldata();
+          });
+          
+  // ーーーーーーーーーーーーーーーーーーーーページャーーーーーーーーーーーーーーーーーーーーーーーーー
 });
     </script>
   </body>
 </html>
- <!-- // 楽天ブックスの総合検索APIを使って製作してください。
+<!-- // 楽天ブックスの総合検索APIを使って製作してください。
 // // answerの挙動を良く見てね！
 // //
 // // 下記URLにAPIの仕様が載ってるいので、ブラウザで開いて参考にしてください。
@@ -141,3 +148,67 @@ $('ul').after('<div class="js-pager">'+
 // //     <li class="next btn-item"><a class="btn-anchor" href="">次へ</a></li>
 // //   </ul>
 // // </div> -->
+<!-- // var pages = 1;
+// $(function() {
+// 　$('#js-search-button').on('click', function(){
+//   $('.js-pager').remove();
+// $('.lists').children().remove();
+//   var keyword = $('#js-search-word').val();
+//   // 検索を押すことでjs-search-wordの中のバリューをkeywordいれる
+//   // 検索の値がバリューに入る
+// }
+
+//   $.ajax({
+//   url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+//   type: 'GET',
+//   datatype: 'json',//書き方のルール
+//   data: {
+//   applicationId: '1019399324990976605',
+//   booksGenreId: '001',//楽天ブックスジャンルID
+//   keyword: keyword,// キーワード
+//   hits: '20',// 1ページあたりの取得件数
+//   field: '0',// 検索フィールド
+//   page:pages // page:2だと2ページから表示される
+//   },
+//   }).done(function(data) {
+//   // ajaxで情報を.done(function(data)のdataに渡す。
+//   // ajaxの情報が楽天に送って帰ってきたデータ
+//   if(data.Items === 0) {
+//     massage ('検索結果が見つかりませんでした。別のキーワードで検索して下さい。')
+//   } else {
+//     $(data.Items).each(function(index,value) {
+//       //index 数
+//       // value　内容
+// var list = '<li class="lists__item">' +
+//   '<div class="lists__item__inner">' +
+//     '<a href='+value.Item.itemUrl+' class="lists__item__link" target="_blank">' +
+//       '<img src='+value.Item.largeImageUrl+' class="lists__item__img" alt="">'+
+//       '<p class="lists__item__detail">作品名：'+value.Item.title+'</p>'+
+//       '<p class="lists__item__detail">作者：'+value.Item.author+'</p>'+
+//       '<p class="lists__item__detail">出版社：'+value.Item.publisherName+'</p>'+
+//     '</a>'+
+//   '</div>'+
+// '</li>';
+// $('.lists').append(list);//指定した要素のなか（DOMの中の前）に文字列を指定できる。検索したときにulの下にlistが表示される。
+// console.log(list)
+// });
+// }
+// // ーーーーーーーーーーーーーーーーーーーーページャーーーーーーーーーーーーーーーーーーーーーーーーー
+// $('ul').after('<div class="js-pager">'+
+//   '<ul class="btn-wrapper">'+
+//     '<li class="prev btn-item">'+'<a class="btn-anchor">前へ</a></li>'+
+//     '<li class="next btn-item">'+'<a class="btn-anchor">次へ</a></li>'+
+//     '</ul>'+
+//     '</div>');
+//     　$(document).on('click','ul.prev',function() {
+//       prev--;
+//       research();
+//   　});
+//   　$(document).on('click','ul.next',function() {
+//     next++;
+//     research();
+//   });
+//   // console.log(pages);
+// });
+// });
+// }); -->
