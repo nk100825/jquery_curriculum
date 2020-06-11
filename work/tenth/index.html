@@ -28,21 +28,38 @@
     <script>
 
 $(function() {
+// ーーーーーーーーーーーーーーーーーーーーーー変数定義ーーーーーーーーーーーーーーーーーーーーーーーーー
   var pages = 1;
   var lastpage = false;
+// ーーーーーーーーーーーーーーーーーーーーーークリックイベントーーーーーーーーーーーーーーーーーーーーーーーーー
   $('.search').after('<div class="message">'+'</div>');
-  $(document).on('click','#js-search-button',function() {
+  $(document).on('click', '#js-search-button', function() {
     pages = 1;
     $('.lists').children().remove();
     fetch(); //（フェッチ）取得、読み込み
   });
-
-  // pages=1はajaxのdateのpagesの変数
-  // lastpage = false;はpagesがdata.pageCountと違う時
-  // 18　div classsのsearchに（）のなかのdomをいれる
-  // id　#js-search-button（検索ボタン）を押した時、pageを1ページを表示する。
-  // $('.lists').children().remove();　.listsの子要素を削除する。
-  // fetch();は、最後までの処理をもう一度行う。
+  $(document).on('click', '.prev', function() {
+    if(pages === 1){
+      return false;
+    } else {
+      pages--;
+      fetch();
+    }
+  });
+  $(document).on('click', '.next', function() {
+    if (lastpage) {
+      $('.message').empty();
+      $('.message').append('これ以上ありません。');
+    } else {
+      pages++;
+      fetch();
+    }
+  });
+// searchの下に追加する。
+// js-search-buttonをクリックした時に、
+// pageが1ページから表示させる。
+// listsの子要素を削除する。
+// fetch();関数を実行してます。
 // ーーーーーーーーーーーーーーーーーーーーーーajaxーーーーーーーーーーーーーーーーーーーーーーーーーーー
   function fetch() {
     var keyword = $('#js-search-word').val();
@@ -59,89 +76,107 @@ $(function() {
         page:pages　// page:2だと2ページを表示される
       },
     })
+    // fetch()関数を定義してます
+    // $('#js-search-word').val();を変数、keywordに定義した
+
 // ーーーーーーーーーーーーーーーーーーーーーーdoneーーーーーーーーーーーーーーーーーーーーーーーーー
   .done(function(data) {
-    $('.message').empty();
-    $('.js-pager').remove();
-    if(data.count === 0) {
-      $('.list').empty(); //<ul class="lists"></ul>子要素（var list）のこと
-      $('.message').append('検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。');
-    } else {
-      $('.lists__item').remove();
-      $(data.Items).each(function(index,value) {//index 数 value 内容
-        var list = '<li class="lists__item">'+
-                      '<div class="lists__item__inner">'+
-                        '<a href='+value.Item.itemUrl+' class="lists__item__link" target="_blank">'+
-                          '<img src='+value.Item.largeImageUrl+' class="lists__item__img" alt="">'+
-                          '<p class="lists__item__detail">作品名：'+value.Item.title+'</p>'+
-                          '<p class="lists__item__detail">作者：'+value.Item.author+'</p>'+
-                          '<p class="lists__item__detail">出版社：'+value.Item.publisherName+'</p>'+
-                        '</a>'+
-                      '</div>'+
-                    '</li>';
-        $('.lists').append(list);
+    read(data);
+})
+  .fail(function(error) {
+    errorMessage(error);
+  }); // end totaldata
+  };
+// -------------------------------------作品データ--------------------------------
+function read(data) {
+  $('.message').empty();
+  $('.js-pager').remove();
+  if(data.count === 0) {
+    $('.list').empty(); //<ul class="lists"></ul>子要素（var list）のこと
+    $('.message').append('検索結果が見つかりませんでした。<br>別のキーワードで検索して下さい。');
+  } else {
+    $('.lists__item').remove();
+    var list ='';
+    $(data.Items).each(function(index, value) {//index 数 value 内容
+      list += '<li class="lists__item">'+
+                '<div class="lists__item__inner">'+
+                  '<a href='+value.Item.itemUrl+' class="lists__item__link" target="_blank">'+
+                  '<img src='+value.Item.largeImageUrl+' class="lists__item__img" alt="">'+
+                  '<p class="lists__item__detail">作品名：'+value.Item.title+'</p>'+
+                  '<p class="lists__item__detail">作者：'+value.Item.author+'</p>'+
+                  '<p class="lists__item__detail">出版社：'+value.Item.publisherName+'</p>'+
+                '</a>'+
+                '</div>'+
+              '</li>';
       });
-      // console.log(data);
-    };
-// ーーーーーーーーーーーーーーーーーーーページャのテンプレートーーーーーーーーーーーーーーーーーーーーーーーーーー
-    $('ul').after(
-      '<div class="js-pager">'+
-        '<ul class="btn-wrapper">'+
-          '<li class="prev btn-item">'+'<a class="btn-anchor" href="#">前へ</a></li>'+
-          '<li class="next btn-item">'+'<a class="btn-anchor" href="#">次へ</a></li>'+
-        '</ul>'+
-      '</div>');
-      if (pages === data.pageCount) {
-        $('.next').addClass('disabled');
-        lastpage = true;
-      } else {
-        lastpage = false;
-      }
-      if (pages === 1) {
-        $('.prev').addClass('disabled');
-      }
-    })
-  // -------------------------------------fail---------------------------------------------
-    .fail(function(error) {
-      $('.message').empty();
-        console.log(error);
-      if(error.status === 400) {
-        $('.message').append('検索文字が空、もしくは半角英数1文字になっています。');
-      } else if (error.status === 0) {
-        $('.message').append('通信に失敗しました。インターネットの接続をご確認ください。');
-      } else if (error.status === 429) {
-        $('.message').append('連打はやめましょう。');
-      } else if (error.status === 500) {
-        $('.message').append('システムエラー。長時間続くようであれば、こちらよりごお問い合わせください。');
-      } else if (error.status === 503) {
-        $('.message').append('メンテナンス (楽天API)');
-      } else {
-        $('.message').append('予期せぬエラーが発生しました。');
-      }
-    });
-  }; // end totaldata
-// -------------------------------------ページャクリックイベント---------------------------------------------
-  $(document).on('click','.prev',function() {
-    // console.log(lastpage);
-    if(pages === 1){
-      return false;
-    } else {
-      pages--;
-      fetch();
+    $('.lists').append(list);
+  };
+  //  検索の結果をread関数で引数(data)を定義した
+  // .messageのclassの子要素を削除した。
+  //  .js-pagerのclassを削除した。
+// if文でdata.countが0の時listの子要素を削除する。
+// apppendでmessageclassの後ろに追加する。
+// elseでそれ以外は.lists__itemを削除する。
+// 変数list空の文字列を代入する
+// data.Itemsをecho文で繰り返し作品の情報の取得の処理を行う。
+// 関数をつけfunction引数(index, value)を定義する。
+// 変数listに作品の情報を代入する
+// appendでlistsclassに変数listを追加する。
+// -------------------------------------ページャクリックイベント--------------------------------
+  $('ul').after(
+    '<div class="js-pager">'+
+      '<ul class="btn-wrapper">'+
+        '<li class="prev btn-item">'+'<a class="btn-anchor" href="#">前へ</a></li>'+
+        '<li class="next btn-item">'+'<a class="btn-anchor" href="#">次へ</a></li>'+
+      '</ul>'+
+    '</div>');
+  if (pages === data.pageCount) {
+    $('.next').addClass('disabled');
+    lastpage = true;
+  } else {
+    lastpage = false;
+  }
+  if (pages === 1) {
+    $('.prev').addClass('disabled');
+  }
+};
+// afterでulの後ろにつける。
+// if文でpagesがdata.pageCounと同じ時.next（次へボタン）のclassにdisabledを追加する。
+// pagesがdata.pageCounと同じ時、lastpage = true;である
+//elseでそれ以外はlastpage = false;である
+// if文でpages === 1の時.prev（前へ）ボタンのclassにdisabledを追加する。
+// -------------------------------------エラー文---------------------------------------------
+  function errorMessage(error) {
+    $('.message').empty();
+    var errorText = '';
+    switch (error.status) {
+      case 400:
+        errorText = '検索文字が空、もしくは半角英数1文字になっています。';
+        break;
+      case 0:
+        errorText = '通信に失敗しました。インターネットの接続をご確認ください。';
+        break;
+      case 429:
+        errorText = '連打はやめましょう。';
+        break;
+      case 500:
+        errorText = 'システムエラー。長時間続くようであれば、こちらよりごお問い合わせください。';
+        break;
+      case 503:
+        errorText = 'メンテナンス (楽天API)';
+        break;
+      default:
+        errorText = '予期せぬエラーが発生しました。';
     }
-  });
-  $(document).on('click','.next',function() {
-    // console.log(lastpage);
-    if (lastpage) {
-      $('.message').empty();
-      $('.message').append('これ以上ありません。');
-    } else {
-      pages++;
-      fetch();
-    }
-  });
+    $('.message').append(errorText);
+  };
 });
-// ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+// 関数errorMessageを定義しerrorMessageの引数(error)を定義します。
+// message classの子要素を削除する。
+// 変数var errorCodeにerror.statusを代入する。
+// 変数var errorTextに空の文字列を代入する。
+// switch文でcase 400の時、errorText が'検索文字が空、もしくは半角英数1文字になっています。';になる
+// appendでdomの中の後につける。
     </script>
   </body>
 </html>
