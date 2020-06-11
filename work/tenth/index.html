@@ -83,14 +83,14 @@ $(function() {
 
 // ーーーーーーーーーーーーーーーーーーーーーーdoneーーーーーーーーーーーーーーーーーーーーーーーーー
   .done(function(data) {
-    execution(data);
+    booklistDisplay(data);
 })
   .fail(function(error) {
     errorMessage(error);
   }); // end totaldata
   };
 // -------------------------------------作品データ--------------------------------
-function execution(data) {
+function booklistDisplay(data) {
   $('.message').empty();
   $('.js-pager').remove();
   if(data.count === 0) {
@@ -113,7 +113,7 @@ function execution(data) {
       });
     $('.lists').append(list);
   };
-  //  検索の結果をexecution関数で引数(data)を定義した
+  //  検索の結果をbooklistDisplay関数で引数(data)を定義した
   // .messageのclassの子要素を削除した。
   //  .js-pagerのclassを削除した。
 // if文でdata.countが0の時listの子要素を削除する。
