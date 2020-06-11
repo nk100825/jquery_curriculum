@@ -67,7 +67,9 @@ $(function() {
       url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',　//リクエストURL
       type: 'GET',　//HTTPのリクエストメソッド（POST/GET）を指定する
       datatype: 'json',　//JSONデータを受信する場合
-      //json オブジェクト、配列、数値、文字列、真偽値、nullの(ソフトウェア内部で扱っているデータをそのまま、保存したり送受信することができるように変換すること)
+// ーーーーーーーーーーーーーーーーーーjsonーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
+      //jsonはJavaScriptのデータフォーマット（特定の形式に当てはめられたデータの集まりのこと）でオブジェクト、配列、数値、文字列、真偽値、など、誰が書いても分かるようにすることや、機械が判別できるようにしたデータ構造のこと。
+// ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
       data: {
         applicationId: '1019399324990976605',　//アプリID
         booksGenreId: '001',　//楽天市場におけるジャンルを特定するためのID検索キーワード、ジャンルID、商品コード、ショップコードのいずれかが指定されていることが必須です。
@@ -81,14 +83,14 @@ $(function() {
 
 // ーーーーーーーーーーーーーーーーーーーーーーdoneーーーーーーーーーーーーーーーーーーーーーーーーー
   .done(function(data) {
-    read(data);
+    execution(data);
 })
   .fail(function(error) {
     errorMessage(error);
   }); // end totaldata
   };
 // -------------------------------------作品データ--------------------------------
-function read(data) {
+function execution(data) {
   $('.message').empty();
   $('.js-pager').remove();
   if(data.count === 0) {
@@ -111,7 +113,7 @@ function read(data) {
       });
     $('.lists').append(list);
   };
-  //  検索の結果をread関数で引数(data)を定義した
+  //  検索の結果をexecution関数で引数(data)を定義した
   // .messageのclassの子要素を削除した。
   //  .js-pagerのclassを削除した。
 // if文でdata.countが0の時listの子要素を削除する。
