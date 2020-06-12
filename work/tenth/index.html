@@ -83,14 +83,14 @@ $(function() {
 
 // ーーーーーーーーーーーーーーーーーーーーーーdoneーーーーーーーーーーーーーーーーーーーーーーーーー
   .done(function(data) {
-    booklistDisplay(data);
+    displayBooklist(data);
 })
   .fail(function(error) {
     errorMessage(error);
   }); // end totaldata
   };
 // -------------------------------------作品データ--------------------------------
-function booklistDisplay(data) {
+function displayBooklist(data) {
   $('.message').empty();
   $('.js-pager').remove();
   if(data.count === 0) {
